@@ -11,16 +11,20 @@
             text-color="#fff"
             active-text-color="#ffd04b"
             :router="true"
-            :unique-opened	="true"
+            :unique-opened="true"
           >
-            <el-submenu :index="v.name" v-for="(v,i) in userList" :key="i">
+            <el-submenu :index="v.name" v-for="(v, i) in userList" :key="i">
               <template slot="title">
                 <i class="el-icon-s-unfold"></i>
-                {{v.name}}
+                {{ v.name }}
               </template>
-              <el-menu-item :index="v1.router" v-for="(v1,i1) in v.childs" :key="i1">
+              <el-menu-item
+                :index="v1.router"
+                v-for="(v1, i1) in v.childs"
+                :key="i1"
+              >
                 <i class="el-icon-s-promotion"></i>
-                {{v1.names}}
+                {{ v1.names }}
               </el-menu-item>
             </el-submenu>
           </el-menu>
@@ -42,8 +46,8 @@ export default {
   methods: {
     getUserList() {
       let token = sessionStorage.getItem("_token");
-      this.$axios.post("/setUserList",{token}).then(res => {
-        console.log(res);
+      this.$axios.post("/setUserList", { token }).then(res => {
+        // console.log(res);
         this.userList = res.data.data;
       });
     }
@@ -62,10 +66,11 @@ export default {
   background: #eee;
   color: rgb(59, 42, 42);
 }
-.app, .el-container {
+.app,
+.el-container {
   height: 100%;
 }
-.app .el-aside{
+.app .el-aside {
   background: rgb(86, 92, 99);
 }
 </style>
