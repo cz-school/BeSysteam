@@ -7,7 +7,7 @@
           >首页</el-breadcrumb-item
         >
         <el-breadcrumb-item>
-          <a :href="`${this.$route.matched[1].path}`">活动管理</a>
+          <a :href="`${this.$route.matched[1].path}`">窗口管理</a>
         </el-breadcrumb-item>
       </el-breadcrumb>
     </el-row>
@@ -184,7 +184,8 @@ export default {
       queryInfo: {
         pagenum: 1,
         pagesize: 10,
-        query: ""
+        query: "",
+        users_id: ""
       },
       total: 0,
       winlist: [],
@@ -385,6 +386,7 @@ export default {
     },
     // 获取到窗口数据 /win_st
     async getWin_st() {
+      console.log(this.queryInfo);
       let res = await this.$axios.get("/win_st_ht", { params: this.queryInfo });
       this.total = res.data.data[0][0].total;
       this.winlist = res.data.data[1];
@@ -411,6 +413,7 @@ export default {
     }
   },
   created() {
+    this.queryInfo.users_id = sessionStorage.getItem("_userId") || 1;
     this.getWin_st();
     Date.prototype.Format = function(fmt) {
       var o = {

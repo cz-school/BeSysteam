@@ -3,11 +3,9 @@
     <!-- 面包屑 -->
     <el-row :span="24">
       <el-breadcrumb separator="/">
-        <el-breadcrumb-item :to="{ path: `${this.$route.matched[0].path}` }"
-          >首页</el-breadcrumb-item
-        >
+        <el-breadcrumb-item :to="{ path: `${this.$route.matched[0].path}` }">首页</el-breadcrumb-item>
         <el-breadcrumb-item>
-          <a :href="`${this.$route.matched[1].path}`">活动管理</a>
+          <a :href="`${this.$route.matched[1].path}`">菜品管理</a>
         </el-breadcrumb-item>
       </el-breadcrumb>
     </el-row>
@@ -19,14 +17,9 @@
             placeholder="请输入内容"
             v-model="queryInfo.query"
             class="input-with-select"
-            @change="getWin_st"
+            @change="getMenu_st"
           >
-            <el-button
-              slot="append"
-              icon="el-icon-search"
-              type="primary"
-              @click="getWin_st"
-            ></el-button>
+            <el-button slot="append" icon="el-icon-search" type="primary" @click="getMenu_st"></el-button>
           </el-input>
         </div>
       </el-col>
@@ -35,24 +28,54 @@
     <el-card>
       <el-row>
         <el-col :span="6">
-          <el-button type="primary">窗口管理 ------- win</el-button>
+          <el-button type="primary">菜品管理 ------- menu</el-button>
         </el-col>
         <el-col :span="6">
-          <el-button type="primary" @click="adddialogVisible = true"
-            >添加窗口</el-button
-          >
+          <el-button type="primary" @click="adddialogVisible = true">添加菜品</el-button>
+        </el-col>
+        <el-col :span="6">
+          <el-select v-model="queryInfo.win_id"  @change="getMenu_st" placeholder="请选择窗口列表">
+            <el-option
+              v-for="item in winlist"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            ></el-option>
+          </el-select>
+        </el-col>
+        <el-col :span="6">
+          <el-select v-model="queryInfo.classify_id" @change="getMenu_st" placeholder="请选择分类列表">
+            <el-option
+              v-for="item in classifylist"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            ></el-option>
+          </el-select>
         </el-col>
       </el-row>
-      <el-table
-        :data="winlist"
-        style="width: 100%"
-        :row-class-name="tableRowClassName"
-      >
+      <el-table :data="menulist" style="width: 100%" :row-class-name="tableRowClassName">
         <el-table-column type="index" label="索引"></el-table-column>
-        <el-table-column prop="win_name" label="名称"></el-table-column>
-        <el-table-column prop="win_inter" label="介绍"></el-table-column>
-        <el-table-column prop="win_start" label="开始时间"></el-table-column>
-        <el-table-column prop="win_end" label="结束时间"></el-table-column>
+        <el-table-column prop="menu_name" label="菜品名称"></el-table-column>
+        <el-table-column prop="menu_img" label="菜品图片" label-width="100px">
+          <template slot-scope="scoped">
+            <el-image
+              style="width: 100px; height: 100px"
+              :src="scoped.row.menu_img"
+              fit="['fill', 'contain', 'cover', 'none', 'scale-down']"
+            ></el-image>
+          </template>
+        </el-table-column>
+        <el-table-column prop="menu_price" label="菜品价格"></el-table-column>
+        <el-table-column prop="menu_unit" label="菜品分量"></el-table-column>
+        <el-table-column prop="recommend" label="推荐状态">
+          <template slot-scope="scoped">
+            <el-button type="primary" v-if="(scoped.row.recommend = 1)">推荐</el-button>
+            <el-button type="primary" v-if="(scoped.row.recommend = 0)">推荐</el-button>
+          </template>
+        </el-table-column>
+        <el-table-column prop="classify_name" label="分类"></el-table-column>
+        <el-table-column prop="win_name" label="所属菜馆"></el-table-column>
         <el-table-column prop="users_id" label="所属人员"></el-table-column>
         <el-table-column label="操作">
           <template slot-scope="scoped">
@@ -61,15 +84,13 @@
               size="mini"
               icon="el-icon-edit"
               @click="change_win(scoped.row.id)"
-              >修改</el-button
-            >
+            >修改</el-button>
             <el-button
               type="danger"
               size="mini"
               icon="el-icon-delete"
               @click="delete_win(scoped.row.id)"
-              >删除</el-button
-            >
+            >删除</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -111,16 +132,10 @@
           <el-input v-model="addruleForm.win_inter"></el-input>
         </el-form-item>
         <el-form-item label="窗口售卖开始时间" prop="win_start">
-          <el-time-picker
-            v-model="addruleForm.win_start"
-            placeholder="任意时间点"
-          ></el-time-picker>
+          <el-time-picker v-model="addruleForm.win_start" placeholder="任意时间点"></el-time-picker>
         </el-form-item>
         <el-form-item label="窗口售卖结束时间" prop="win_end">
-          <el-time-picker
-            v-model="addruleForm.win_end"
-            placeholder="任意时间点"
-          ></el-time-picker>
+          <el-time-picker v-model="addruleForm.win_end" placeholder="任意时间点"></el-time-picker>
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
@@ -157,16 +172,10 @@
           <el-input v-model="changeruleForm.win_inter"></el-input>
         </el-form-item>
         <el-form-item label="修改窗口售卖当天开始时间" prop="win_start">
-          <el-time-picker
-            v-model="changeruleForm.win_start"
-            placeholder="任意时间点"
-          ></el-time-picker>
+          <el-time-picker v-model="changeruleForm.win_start" placeholder="任意时间点"></el-time-picker>
         </el-form-item>
         <el-form-item label="修改窗口售卖当天结束时间" prop="win_end">
-          <el-time-picker
-            v-model="changeruleForm.win_end"
-            placeholder="任意时间点"
-          ></el-time-picker>
+          <el-time-picker v-model="changeruleForm.win_end" placeholder="任意时间点"></el-time-picker>
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
@@ -184,10 +193,22 @@ export default {
       queryInfo: {
         pagenum: 1,
         pagesize: 10,
-        query: ""
+        query: "",
+        users_id: sessionStorage.getItem("_userID") || 1,
+        win_id: "",
+        classify_id: ""
       },
       total: 0,
+      // 分类下拉框数据
+      classifyValue: "",
+      // 分类下拉框数据
+      classifylist: [],
+      // 窗口选择的数据
+      winValue: "",
+      // 窗口下拉框数据
+      menulist: [],
       winlist: [],
+
       // 添加窗口的弹框
       adddialogVisible: false,
       // 添加窗口的表单
@@ -271,6 +292,43 @@ export default {
     };
   },
   methods: {
+    // 获取到分类
+    async getclassify() {
+      let res = await this.$axios.get("/classify_st_ht", {
+        params: { users_id: this.queryInfo.queryInfo }
+      });
+      let arr = [];
+      res.data.data[1].forEach(itme => {
+        if (arr.indexOf(itme.id) == -1) {
+          console.log(arr);
+          arr.push(itme.id);
+          this.classifylist.push({
+            key: itme.id,
+            label: itme.name,
+            value: itme.id
+          });
+        }
+      });
+      // console.log(this.classifylist);
+    },
+    // 获取到窗口
+    async getwin() {
+      let res = await this.$axios.get("/win_st_ht", {
+        params: { users_id: this.queryInfo.queryInfo }
+      });
+      let arr = [];
+      res.data.data[1].forEach(itme => {
+        if (arr.indexOf(itme.id) == -1) {
+          arr.push(itme.id);
+          this.winlist.push({
+            key: itme.id,
+            label: itme.win_name,
+            value: itme.id
+          });
+        }
+      });
+      // console.log(this.winlist);
+    },
     // 关闭修改窗口
     changehandleClose() {
       this.changeruleForm.win_start = "";
@@ -280,7 +338,6 @@ export default {
     },
     // 修改窗口显示
     change_win(id) {
-      console.log(id);
       // 通过id 获取到数据
       this.$axios.get(`/win_st_ht/${id}`).then(res => {
         if (res.data.state.code !== "200") {
@@ -316,7 +373,7 @@ export default {
               } else {
                 this.$message.success(res.data.state.msg);
                 this.changedialogVisible = false;
-                this.getWin_st();
+                this.getMenu_st();
               }
             });
         }
@@ -348,7 +405,7 @@ export default {
               return this.$message.error(res.data.state.msg);
             } else {
               this.$message.success(res.data.state.msg);
-              this.getWin_st();
+              this.getMenu_st();
               this.adddialogVisible = false;
             }
           });
@@ -364,7 +421,7 @@ export default {
       })
         .then(() => {
           this.$axios.delete(`/win_st_ht/${id}`).then(res => {
-            console.log(res);
+            // console.log(res);
             if (res.data.state.code !== "200") {
               return this.$message.error(res.data.state.msg);
             } else {
@@ -372,7 +429,7 @@ export default {
                 type: "success",
                 message: "删除成功!"
               });
-              this.getWin_st();
+              this.getMenu_st();
             }
           });
         })
@@ -383,22 +440,24 @@ export default {
           });
         });
     },
-    // 获取到窗口数据 /win_st
-    async getWin_st() {
-      let res = await this.$axios.get("/win_st_ht", { params: this.queryInfo });
+    // 获取到菜品数据 /menu_st_ht
+    async getMenu_st() {
+      let res = await this.$axios.get("/menu_st_ht", {
+        params: this.queryInfo
+      });
       this.total = res.data.data[0][0].total;
-      this.winlist = res.data.data[1];
-      console.log(res);
+      this.menulist = res.data.data[1];
+      // console.log(res);
     },
     // size改变
     handleSizeChange(size) {
       this.queryInfo.pagesize = size;
-      this.getWin_st();
+      this.getMenu_st();
     },
     // num改变
     handleCurrentChange(num) {
       this.queryInfo.pagenum = num;
-      this.getWin_st();
+      this.getMenu_st();
     },
     // 改变颜色
     tableRowClassName({ rowIndex }) {
@@ -410,8 +469,13 @@ export default {
       return "";
     }
   },
+  beforeCreate() {
+    window.sessionStorage.setItem("_userID", "1");
+  },
   created() {
-    this.getWin_st();
+    this.getMenu_st();
+    this.getclassify();
+    this.getwin();
     Date.prototype.Format = function(fmt) {
       var o = {
         "M+": this.getMonth() + 1, //月份
