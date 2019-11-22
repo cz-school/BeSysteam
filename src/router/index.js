@@ -87,8 +87,9 @@ router.beforeEach((to, from, next) => {
   }
   if (qxId == 1) return next();
   let path = to.path;
+  if (path == "/wel") return next();
   if (path != "/menuList" && qxId != 1) {
-    next(path);
+    next("/");
   }
   // 如果登录了 那么就放行
   next();
