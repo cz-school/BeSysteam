@@ -34,7 +34,7 @@
           <el-button type="primary" @click="adddialogVisible = true">添加菜品</el-button>
         </el-col>
         <el-col :span="6">
-          <el-select v-model="queryInfo.win_id"  @change="getMenu_st" placeholder="请选择窗口列表">
+          <el-select v-model="queryInfo.win_id" @change="getMenu_st" placeholder="请选择窗口列表">
             <el-option
               v-for="item in winlist"
               :key="item.value"
@@ -70,8 +70,8 @@
         <el-table-column prop="menu_unit" label="菜品分量"></el-table-column>
         <el-table-column prop="recommend" label="推荐状态">
           <template slot-scope="scoped">
-            <el-button type="primary" v-if="(scoped.row.recommend = 1)">推荐</el-button>
-            <el-button type="primary" v-if="(scoped.row.recommend = 0)">推荐</el-button>
+            <el-button type="primary" v-if="(scoped.row.recommend == 0)">推荐</el-button>
+            <el-button type="danger" v-if="(scoped.row.recommend == 1)">不推荐</el-button>
           </template>
         </el-table-column>
         <el-table-column prop="classify_name" label="分类"></el-table-column>
@@ -105,11 +105,11 @@
         :total="total"
       ></el-pagination>
     </el-card>
-    <!--  添加窗口  -->
+    <!--  添加菜品  -->
     <el-dialog
-      title="添加窗口"
+      title="添加菜品"
       :visible.sync="adddialogVisible"
-      width="50%"
+      width="70%"
       :before-close="handleClose"
       @close="handleClose"
       style="background-color:#409EFF;"
@@ -118,24 +118,63 @@
         :model="addruleForm"
         :rules="addrules"
         ref="addruleref"
-        label-width="140px"
+        label-width="180px"
         class="demo-ruleForm"
         label-position="left"
       >
-        <el-form-item label="窗口名称" prop="win_name">
-          <el-input v-model="addruleForm.win_name"></el-input>
+        <el-form-item label="菜品名称" prop="menu_name">
+          <el-input v-model="addruleForm.menu_name"></el-input>
         </el-form-item>
-        <el-form-item label="添加的用户的名称" prop="users_id">
-          <el-input disabled v-model="addruleForm.users_id"></el-input>
+        <el-form-item label="菜品描述" prop="menu_describe">
+          <el-input v-model="addruleForm.menu_describe"></el-input>
         </el-form-item>
-        <el-form-item label="窗口的介绍" prop="win_inter">
-          <el-input v-model="addruleForm.win_inter"></el-input>
+        <el-form-item label="菜品价格（数字 单位为元）" prop="menu_price">
+          <el-input v-model="addruleForm.menu_price"></el-input>
         </el-form-item>
-        <el-form-item label="窗口售卖开始时间" prop="win_start">
-          <el-time-picker v-model="addruleForm.win_start" placeholder="任意时间点"></el-time-picker>
+        <el-form-item label="菜品分量（列如 20元/份 ）" prop="menu_unit">
+          <el-input v-model="addruleForm.menu_unit"></el-input>
         </el-form-item>
-        <el-form-item label="窗口售卖结束时间" prop="win_end">
-          <el-time-picker v-model="addruleForm.win_end" placeholder="任意时间点"></el-time-picker>
+        <el-form-item label="菜品图片" prop="menu_img">
+          <el-upload
+            action="https://jsonplaceholder.typicode.com/posts/"
+            list-type="picture-card"
+            :on-preview="handlePictureCardPreview"
+            :on-remove="handleRemove"
+            :on-success="handsuccess"
+          >
+            <i class="el-icon-plus"></i>
+          </el-upload>
+          <el-dialog :visible.sync="dialogVisible">
+            <img width="100%" :src="dialogImageUrl" alt />
+          </el-dialog>
+        </el-form-item>
+        <el-form-item label="是否推荐" prop="recommend">
+          <el-button
+            @click="addruleForm.recommend =0 "
+            type="primary"
+            v-if="(addruleForm.recommend == 1)"
+          >不推荐</el-button>
+          <el-button
+            @click="addruleForm.recommend =1"
+            type="danger"
+            v-if="(addruleForm.recommend == 0)"
+          >推荐</el-button>
+        </el-form-item>
+        <el-form-item label="所属窗口" prop="win_id">
+          <el-radio
+            v-model="addruleForm.win_id"
+            :label="index"
+            v-for="(item,index) in winlist"
+            :key="index"
+          >{{item.label}}</el-radio>
+        </el-form-item>
+        <el-form-item label="所属分类" prop="stclassify_id">
+          <el-radio
+            v-model="addruleForm.stclassify_id"
+            :label="index"
+            v-for="(item,index) in classifylist"
+            :key="index"
+          >{{item.label}}</el-radio>
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
@@ -189,6 +228,10 @@
 export default {
   data() {
     return {
+      // 添加的图片
+      dialogImageUrl: "",
+      dialogVisible: false,
+      menulist: [],
       users_id: "",
       queryInfo: {
         pagenum: 1,
@@ -202,22 +245,36 @@ export default {
       // 分类下拉框数据
       classifyValue: "",
       // 分类下拉框数据
-      classifylist: [],
-      // 窗口选择的数据
-      winValue: "",
+      classifylist: [
+        {
+          key: "",
+          label: "所有",
+          value: ""
+        }
+      ],
       // 窗口下拉框数据
-      menulist: [],
-      winlist: [],
+
+      winlist: [
+        {
+          key: "",
+          label: "所有",
+          value: ""
+        }
+      ],
 
       // 添加窗口的弹框
       adddialogVisible: false,
       // 添加窗口的表单
       addruleForm: {
-        win_name: "",
-        users_id: "1",
-        win_inter: "",
-        win_start: "",
-        win_end: ""
+        menu_name: "",
+        menu_describe: "",
+        menu_price: "",
+        menu_unit: "",
+        menu_img: "",
+        recommend: "0",
+        win_id: "",
+        stclassify_id: "",
+        users_id:window.sessionStorage.getItem("_userID")||1
       },
       // 添加窗口的校验
       addrules: {
@@ -292,15 +349,27 @@ export default {
     };
   },
   methods: {
+    // 图片上传
+    handleRemove(file, fileList) {
+      console.log(file, fileList);
+    },
+    handlePictureCardPreview(file) {
+      this.dialogImageUrl = file.url;
+      this.dialogVisible = true;
+    },
+    // 上传oss成功
+    handsuccess(response, file, fileList) {
+      console.log(response, file, fileList);
+    },
     // 获取到分类
     async getclassify() {
       let res = await this.$axios.get("/classify_st_ht", {
         params: { users_id: this.queryInfo.queryInfo }
       });
       let arr = [];
+
       res.data.data[1].forEach(itme => {
         if (arr.indexOf(itme.id) == -1) {
-          console.log(arr);
           arr.push(itme.id);
           this.classifylist.push({
             key: itme.id,
@@ -309,7 +378,6 @@ export default {
           });
         }
       });
-      // console.log(this.classifylist);
     },
     // 获取到窗口
     async getwin() {
@@ -327,7 +395,6 @@ export default {
           });
         }
       });
-      // console.log(this.winlist);
     },
     // 关闭修改窗口
     changehandleClose() {
@@ -343,7 +410,6 @@ export default {
         if (res.data.state.code !== "200") {
           return this.$message.error(res.data.state.msg);
         } else {
-          // console.log(res.data.data[0]);
           this.$message.success(res.data.state.msg);
           this.changeruleForm = res.data.data[0];
           this.changeruleForm.id = id;
@@ -386,27 +452,29 @@ export default {
       this.$refs.addruleref.resetFields();
       this.adddialogVisible = false;
     },
-    // 添加窗口
+    // 添加菜品数据 和 中间表
     add_win() {
       this.$refs.addruleref.validate(valid => {
         if (!valid) {
           return this.$message.error("请填写完整的数据");
         } else {
-          var time2 = new Date().Format("yyyy-MM-dd");
-          this.addruleForm.win_start = `${time2} ${this.addruleForm.win_start.Format(
-            "HH:mm:ss"
-          )}`;
-          this.addruleForm.win_end = `${time2} ${this.addruleForm.win_end.Format(
-            "HH:mm:ss"
-          )}`;
-          this.$axios.post("/win_st_ht", this.addruleForm).then(res => {
-            // console.log(res.data);
+          this.$axios.post("/menu_st_ht", this.addruleForm).then(res => {
             if (res.data.state.code !== "200") {
               return this.$message.error(res.data.state.msg);
             } else {
-              this.$message.success(res.data.state.msg);
-              this.getMenu_st();
-              this.adddialogVisible = false;
+              this.addruleForm.menu_id = res.data.data.insertId;
+              // console.log(this.addruleForm);
+              this.$axios.post("/win_menu_st_ht", this.addruleForm)
+                .then(res1 => {
+                  if (res1.data.state.code !== "200") {
+                    return this.$message.error(res1.data.state.msg);
+                  } else {
+                    this.$message.success(res1.data.state.msg);
+                    this.$message.success(res.data.state.msg);
+                    this.getMenu_st();
+                    this.adddialogVisible = false;
+                  }
+                });
             }
           });
         }
@@ -421,7 +489,6 @@ export default {
       })
         .then(() => {
           this.$axios.delete(`/win_st_ht/${id}`).then(res => {
-            // console.log(res);
             if (res.data.state.code !== "200") {
               return this.$message.error(res.data.state.msg);
             } else {
@@ -447,7 +514,6 @@ export default {
       });
       this.total = res.data.data[0][0].total;
       this.menulist = res.data.data[1];
-      // console.log(res);
     },
     // size改变
     handleSizeChange(size) {
