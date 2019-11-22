@@ -57,7 +57,7 @@
       <el-table :data="menulist" style="width: 100%" :row-class-name="tableRowClassName">
         <el-table-column type="index" label="索引"></el-table-column>
         <el-table-column prop="menu_name" label="菜品名称"></el-table-column>
-        <el-table-column prop="menu_img" label="菜品图片" label-width="100px">
+        <el-table-column prop="menu_img" label="菜品图片" width="130">
           <template slot-scope="scoped">
             <el-image
               style="width: 100px; height: 100px"
@@ -77,7 +77,7 @@
         <el-table-column prop="classify_name" label="分类"></el-table-column>
         <el-table-column prop="win_name" label="所属菜馆"></el-table-column>
         <el-table-column prop="users_id" label="所属人员"></el-table-column>
-        <el-table-column label="操作">
+        <el-table-column label="操作" width="200" >
           <template slot-scope="scoped">
             <el-button
               type="success"
@@ -89,7 +89,7 @@
               type="danger"
               size="mini"
               icon="el-icon-delete"
-              @click="delete_win(scoped.row.id)"
+              @click="delete_win(scoped.row.id,scoped.row.win_menu_id)"
             >删除</el-button>
           </template>
         </el-table-column>
@@ -118,7 +118,7 @@
         :model="addruleForm"
         :rules="addrules"
         ref="addruleref"
-        label-width="180px"
+        label-width="240px"
         class="demo-ruleForm"
         label-position="left"
       >
@@ -136,7 +136,7 @@
         </el-form-item>
         <el-form-item label="菜品图片" prop="menu_img">
           <el-upload
-            action="https://jsonplaceholder.typicode.com/posts/"
+            :action="action"
             list-type="picture-card"
             :on-preview="handlePictureCardPreview"
             :on-remove="handleRemove"
@@ -228,6 +228,9 @@
 export default {
   data() {
     return {
+      action:"http://47.104.29.236:9999/api/v1/upload_phone",
+      // action:"http://127.0.0.1:9999/api/v1/upload_phone",
+
       // 添加的图片
       dialogImageUrl: "",
       dialogVisible: false,
@@ -358,8 +361,10 @@ export default {
       this.dialogVisible = true;
     },
     // 上传oss成功
-    handsuccess(response, file, fileList) {
-      console.log(response, file, fileList);
+    handsuccess(response) {
+      console.log(response.info);
+      this.addruleForm.menu_img=response.info;
+      console.log(this.addruleForm)
     },
     // 获取到分类
     async getclassify() {
@@ -367,14 +372,13 @@ export default {
         params: { users_id: this.queryInfo.queryInfo }
       });
       let arr = [];
-
       res.data.data[1].forEach(itme => {
-        if (arr.indexOf(itme.id) == -1) {
-          arr.push(itme.id);
+        if (arr.indexOf(itme.stclassify_id) == -1) {
+          arr.push(itme.stclassify_id);
           this.classifylist.push({
-            key: itme.id,
+            key: itme.stclassify_id,
             label: itme.name,
-            value: itme.id
+            value: itme.stclassify_id
           });
         }
       });
@@ -398,57 +402,56 @@ export default {
     },
     // 关闭修改窗口
     changehandleClose() {
-      this.changeruleForm.win_start = "";
-      this.changeruleForm.win_end = "";
       this.$refs.changeruleref.resetFields();
       this.changedialogVisible = false;
     },
     // 修改窗口显示
     change_win(id) {
-      // 通过id 获取到数据
-      this.$axios.get(`/win_st_ht/${id}`).then(res => {
-        if (res.data.state.code !== "200") {
-          return this.$message.error(res.data.state.msg);
-        } else {
-          this.$message.success(res.data.state.msg);
-          this.changeruleForm = res.data.data[0];
-          this.changeruleForm.id = id;
-          this.changedialogVisible = true;
-        }
-      });
+          console.log(id)
+          // this.changedialogVisible = true;
+          this.$message.error("改个屁，给我删了，再添")
+      // // 通过id 获取到数据
+      // this.$axios.get(`/win_st_ht/${id}`).then(res => {
+      //   if (res.data.state.code !== "200") {
+      //     return this.$message.error(res.data.state.msg);
+      //   } else {
+      //     this.$message.success(res.data.state.msg);
+      //     this.changeruleForm = res.data.data[0];
+      //     this.changeruleForm.id = id;
+      //     this.changedialogVisible = true;
+      //   }
+      // });
     },
     // 修改窗口按钮
     changetwo_win() {
-      this.$refs.changeruleref.validate(valid => {
-        if (!valid) {
-          return this.$message.error("请填写完整的数据");
-        } else {
-          var time2 = new Date().Format("yyyy-MM-dd");
+      // this.$refs.changeruleref.validate(valid => {
+      //   if (!valid) {
+      //     return this.$message.error("请填写完整的数据");
+      //   } else {
+      //     var time2 = new Date().Format("yyyy-MM-dd");
 
-          this.changeruleForm.win_start = `${time2} ${new Date(
-            this.changeruleForm.win_start
-          ).Format("HH:mm:ss")}`;
-          this.changeruleForm.win_end = `${time2} ${new Date(
-            this.changeruleForm.win_end
-          ).Format("HH:mm:ss")}`;
-          this.$axios
-            .put(`/win_st_ht/${this.changeruleForm.id}`, this.changeruleForm)
-            .then(res => {
-              if (res.data.state.code !== "200") {
-                return this.$message.error(res.data.state.msg);
-              } else {
-                this.$message.success(res.data.state.msg);
-                this.changedialogVisible = false;
-                this.getMenu_st();
-              }
-            });
-        }
-      });
+      //     this.changeruleForm.win_start = `${time2} ${new Date(
+      //       this.changeruleForm.win_start
+      //     ).Format("HH:mm:ss")}`;
+      //     this.changeruleForm.win_end = `${time2} ${new Date(
+      //       this.changeruleForm.win_end
+      //     ).Format("HH:mm:ss")}`;
+      //     this.$axios
+      //       .put(`/win_st_ht/${this.changeruleForm.id}`, this.changeruleForm)
+      //       .then(res => {
+      //         if (res.data.state.code !== "200") {
+      //           return this.$message.error(res.data.state.msg);
+      //         } else {
+      //           this.$message.success(res.data.state.msg);
+      //           this.changedialogVisible = false;
+      //           this.getMenu_st();
+      //         }
+      //       });
+      //   }
+      // });
     },
     // 关闭添加窗口
     handleClose() {
-      this.addruleForm.win_start = "";
-      this.addruleForm.win_end = "";
       this.$refs.addruleref.resetFields();
       this.adddialogVisible = false;
     },
@@ -481,14 +484,14 @@ export default {
       });
     },
     // 删除窗口
-    delete_win(id) {
+    delete_win(id,win_menu_id) {
       this.$confirm("此操作将永久删除该文件, 是否继续?", "提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
         type: "warning"
       })
         .then(() => {
-          this.$axios.delete(`/win_st_ht/${id}`).then(res => {
+          this.$axios.delete(`/win_menu_id/${id}`,{data:{win_menu_id:win_menu_id}}).then(res => {
             if (res.data.state.code !== "200") {
               return this.$message.error(res.data.state.msg);
             } else {
