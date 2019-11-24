@@ -254,12 +254,16 @@ export default {
         });
     },
     affirm(id) {
-      this.$axios.post(`/affirmState/${id}/${this.active}`).then(res => {
-        console.log(res);
-        this.$message.success("更新成功");
-        this.active = this.activeName - 0;
-        this.showTableData();
-      });
+      this.$axios
+        .put(`/affirmState/${id}`, {
+          data: { active: `${this.active}` }
+        })
+        .then(res => {
+          console.log(res);
+          this.$message.success("更新成功");
+          this.active = this.activeName - 0;
+          this.showTableData();
+        });
     }
   },
   created() {
