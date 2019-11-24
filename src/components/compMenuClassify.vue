@@ -49,7 +49,10 @@
         :row-class-name="tableRowClassName"
       >
         <el-table-column type="index" label="索引"></el-table-column>
-        <el-table-column prop="id" label="id"></el-table-column>
+        <el-table-column
+          prop="stclassify_id"
+          label="stclassify_id"
+        ></el-table-column>
         <el-table-column prop="name" label="分类名称"></el-table-column>
         <el-table-column label="操作">
           <template slot-scope="scoped">
@@ -283,7 +286,7 @@ export default {
       let res = await this.$axios.get("/classify_st_ht", {
         params: this.queryInfo
       });
-      this.total = res.data.data[0][0].total;
+      this.total = res.data.data[0].length;
       this.classifylist = res.data.data[1];
       console.log(res);
     },
