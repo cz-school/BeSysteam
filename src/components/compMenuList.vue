@@ -3,7 +3,9 @@
     <!-- 面包屑 -->
     <el-row :span="24">
       <el-breadcrumb separator="/">
-        <el-breadcrumb-item :to="{ path: `${this.$route.matched[0].path}` }">首页</el-breadcrumb-item>
+        <el-breadcrumb-item :to="{ path: `${this.$route.matched[0].path}` }"
+          >首页</el-breadcrumb-item
+        >
         <el-breadcrumb-item>
           <a :href="`${this.$route.matched[1].path}`">菜品管理</a>
         </el-breadcrumb-item>
@@ -19,7 +21,12 @@
             class="input-with-select"
             @change="getMenu_st"
           >
-            <el-button slot="append" icon="el-icon-search" type="primary" @click="getMenu_st"></el-button>
+            <el-button
+              slot="append"
+              icon="el-icon-search"
+              type="primary"
+              @click="getMenu_st"
+            ></el-button>
           </el-input>
         </div>
       </el-col>
@@ -31,10 +38,16 @@
           <el-button type="primary">菜品管理 ------- menu</el-button>
         </el-col>
         <el-col :span="6">
-          <el-button type="primary" @click="adddialogVisible = true">添加菜品</el-button>
+          <el-button type="primary" @click="adddialogVisible = true"
+            >添加菜品</el-button
+          >
         </el-col>
         <el-col :span="6">
-          <el-select v-model="queryInfo.win_id" @change="getMenu_st" placeholder="请选择窗口列表">
+          <el-select
+            v-model="queryInfo.win_id"
+            @change="getMenu_st"
+            placeholder="请选择窗口列表"
+          >
             <el-option
               v-for="item in winlist"
               :key="item.value"
@@ -44,7 +57,11 @@
           </el-select>
         </el-col>
         <el-col :span="6">
-          <el-select v-model="queryInfo.classify_id" @change="getMenu_st" placeholder="请选择分类列表">
+          <el-select
+            v-model="queryInfo.classify_id"
+            @change="getMenu_st"
+            placeholder="请选择分类列表"
+          >
             <el-option
               v-for="item in classifylist"
               :key="item.value"
@@ -54,7 +71,11 @@
           </el-select>
         </el-col>
       </el-row>
-      <el-table :data="menulist" style="width: 100%" :row-class-name="tableRowClassName">
+      <el-table
+        :data="menulist"
+        style="width: 100%"
+        :row-class-name="tableRowClassName"
+      >
         <el-table-column type="index" label="索引"></el-table-column>
         <el-table-column prop="menu_name" label="菜品名称"></el-table-column>
         <el-table-column prop="menu_img" label="菜品图片" width="130">
@@ -70,27 +91,33 @@
         <el-table-column prop="menu_unit" label="菜品分量"></el-table-column>
         <el-table-column prop="recommend" label="推荐状态">
           <template slot-scope="scoped">
-            <el-button type="primary" v-if="(scoped.row.recommend == 0)">推荐</el-button>
-            <el-button type="danger" v-if="(scoped.row.recommend == 1)">不推荐</el-button>
+            <el-button type="primary" v-if="scoped.row.recommend == 0"
+              >推荐</el-button
+            >
+            <el-button type="danger" v-if="scoped.row.recommend == 1"
+              >不推荐</el-button
+            >
           </template>
         </el-table-column>
         <el-table-column prop="classify_name" label="分类"></el-table-column>
         <el-table-column prop="win_name" label="所属菜馆"></el-table-column>
         <el-table-column prop="users_id" label="所属人员"></el-table-column>
-        <el-table-column label="操作" width="200" >
+        <el-table-column label="操作" width="200">
           <template slot-scope="scoped">
             <el-button
               type="success"
               size="mini"
               icon="el-icon-edit"
               @click="change_win(scoped.row.id)"
-            >修改</el-button>
+              >修改</el-button
+            >
             <el-button
               type="danger"
               size="mini"
               icon="el-icon-delete"
-              @click="delete_win(scoped.row.id,scoped.row.win_menu_id)"
-            >删除</el-button>
+              @click="delete_win(scoped.row.id, scoped.row.win_menu_id)"
+              >删除</el-button
+            >
           </template>
         </el-table-column>
       </el-table>
@@ -150,31 +177,35 @@
         </el-form-item>
         <el-form-item label="是否推荐" prop="recommend">
           <el-button
-            @click="addruleForm.recommend =0 "
+            @click="addruleForm.recommend = 0"
             type="primary"
-            v-if="(addruleForm.recommend == 1)"
-          >不推荐</el-button>
+            v-if="addruleForm.recommend == 1"
+            >不推荐</el-button
+          >
           <el-button
-            @click="addruleForm.recommend =1"
+            @click="addruleForm.recommend = 1"
             type="danger"
-            v-if="(addruleForm.recommend == 0)"
-          >推荐</el-button>
+            v-if="addruleForm.recommend == 0"
+            >推荐</el-button
+          >
         </el-form-item>
         <el-form-item label="所属窗口" prop="win_id">
           <el-radio
             v-model="addruleForm.win_id"
             :label="index"
-            v-for="(item,index) in winlist"
+            v-for="(item, index) in winlist"
             :key="index"
-          >{{item.label}}</el-radio>
+            >{{ item.label }}</el-radio
+          >
         </el-form-item>
         <el-form-item label="所属分类" prop="stclassify_id">
           <el-radio
             v-model="addruleForm.stclassify_id"
             :label="index"
-            v-for="(item,index) in classifylist"
+            v-for="(item, index) in classifylist"
             :key="index"
-          >{{item.label}}</el-radio>
+            >{{ item.label }}</el-radio
+          >
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
@@ -211,10 +242,16 @@
           <el-input v-model="changeruleForm.win_inter"></el-input>
         </el-form-item>
         <el-form-item label="修改窗口售卖当天开始时间" prop="win_start">
-          <el-time-picker v-model="changeruleForm.win_start" placeholder="任意时间点"></el-time-picker>
+          <el-time-picker
+            v-model="changeruleForm.win_start"
+            placeholder="任意时间点"
+          ></el-time-picker>
         </el-form-item>
         <el-form-item label="修改窗口售卖当天结束时间" prop="win_end">
-          <el-time-picker v-model="changeruleForm.win_end" placeholder="任意时间点"></el-time-picker>
+          <el-time-picker
+            v-model="changeruleForm.win_end"
+            placeholder="任意时间点"
+          ></el-time-picker>
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
@@ -228,7 +265,7 @@
 export default {
   data() {
     return {
-      action:"http://47.104.29.236:9999/api/v1/upload_phone",
+      action: "http://47.104.29.236:9999/api/v1/upload_phone",
       // action:"http://127.0.0.1:9999/api/v1/upload_phone",
 
       // 添加的图片
@@ -277,7 +314,7 @@ export default {
         recommend: "0",
         win_id: "",
         stclassify_id: "",
-        users_id:window.sessionStorage.getItem("_userID")||1
+        users_id: window.sessionStorage.getItem("_userID") || 1
       },
       // 添加窗口的校验
       addrules: {
@@ -363,8 +400,8 @@ export default {
     // 上传oss成功
     handsuccess(response) {
       console.log(response.info);
-      this.addruleForm.menu_img=response.info;
-      console.log(this.addruleForm)
+      this.addruleForm.menu_img = response.info;
+      console.log(this.addruleForm);
     },
     // 获取到分类
     async getclassify() {
@@ -407,9 +444,9 @@ export default {
     },
     // 修改窗口显示
     change_win(id) {
-          console.log(id)
-          // this.changedialogVisible = true;
-          this.$message.error("改个屁，给我删了，再添")
+      console.log(id);
+      // this.changedialogVisible = true;
+      this.$message.error("改个屁，给我删了，再添");
       // // 通过id 获取到数据
       // this.$axios.get(`/win_st_ht/${id}`).then(res => {
       //   if (res.data.state.code !== "200") {
@@ -429,7 +466,6 @@ export default {
       //     return this.$message.error("请填写完整的数据");
       //   } else {
       //     var time2 = new Date().Format("yyyy-MM-dd");
-
       //     this.changeruleForm.win_start = `${time2} ${new Date(
       //       this.changeruleForm.win_start
       //     ).Format("HH:mm:ss")}`;
@@ -467,7 +503,8 @@ export default {
             } else {
               this.addruleForm.menu_id = res.data.data.insertId;
               // console.log(this.addruleForm);
-              this.$axios.post("/win_menu_st_ht", this.addruleForm)
+              this.$axios
+                .post("/win_menu_st_ht", this.addruleForm)
                 .then(res1 => {
                   if (res1.data.state.code !== "200") {
                     return this.$message.error(res1.data.state.msg);
@@ -484,24 +521,28 @@ export default {
       });
     },
     // 删除窗口
-    delete_win(id,win_menu_id) {
+    delete_win(id, win_menu_id) {
       this.$confirm("此操作将永久删除该文件, 是否继续?", "提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
         type: "warning"
       })
         .then(() => {
-          this.$axios.delete(`/win_menu_id/${id}`,{data:{win_menu_id:win_menu_id}}).then(res => {
-            if (res.data.state.code !== "200") {
-              return this.$message.error(res.data.state.msg);
-            } else {
-              this.$message({
-                type: "success",
-                message: "删除成功!"
-              });
-              this.getMenu_st();
-            }
-          });
+          this.$axios
+            .delete(`/win_menu_id/${id}`, {
+              data: { win_menu_id: win_menu_id }
+            })
+            .then(res => {
+              if (res.data.state.code !== "200") {
+                return this.$message.error(res.data.state.msg);
+              } else {
+                this.$message({
+                  type: "success",
+                  message: "删除成功!"
+                });
+                this.getMenu_st();
+              }
+            });
         })
         .catch(() => {
           this.$message({
@@ -537,9 +578,6 @@ export default {
       }
       return "";
     }
-  },
-  beforeCreate() {
-    window.sessionStorage.setItem("_userID", "1");
   },
   created() {
     this.getMenu_st();
