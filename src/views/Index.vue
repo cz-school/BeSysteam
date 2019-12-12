@@ -2,7 +2,8 @@
   <div class="app">
     <el-container>
       <el-header class="appHead">
-        <h2>五星红旗迎风飘扬🇨🇳🇨🇳</h2>
+        <img class="logo" src="../assets/logo.jpg" alt="">
+        <h2 class="title">删的库中库，方为猿上猿🇨🇳🇨🇳</h2>
       </el-header>
       <el-container>
         <el-aside width="200px">
@@ -18,11 +19,7 @@
                 <i class="el-icon-s-unfold"></i>
                 {{ v.name }}
               </template>
-              <el-menu-item
-                :index="v1.router"
-                v-for="(v1, i1) in v.childs"
-                :key="i1"
-              >
+              <el-menu-item :index="v1.router" v-for="(v1, i1) in v.childs" :key="i1">
                 <i class="el-icon-s-promotion"></i>
                 {{ v1.names }}
               </el-menu-item>
@@ -34,20 +31,26 @@
         </el-main>
       </el-container>
     </el-container>
+    <child @getUserList="getUserList"></child>
   </div>
 </template>
 <script>
+import child from "../components/userList";
 export default {
   data() {
     return {
       userList: []
     };
   },
+  components: {
+    child
+  },
+
   methods: {
     getUserList() {
       let token = sessionStorage.getItem("_token");
       this.$axios.post("/setUserList", { token }).then(res => {
-        // console.log(res);
+        console.log(1);
         this.userList = res.data.data;
       });
     }
@@ -63,8 +66,9 @@ export default {
   user-select: none;
 }
 .appHead {
-  background: #eee;
-  color: rgb(59, 42, 42);
+  background: #565c639e;
+    color: #fff;
+    padding-left: 40px;
 }
 .app,
 .el-container {
@@ -73,4 +77,19 @@ export default {
 .app .el-aside {
   background: rgb(86, 92, 99);
 }
+.app .title {
+  margin: 0;
+  padding: 0;
+  padding-top: 15px;
+  padding-left: 80px;
+  /* background: #ccc; */
+}
+.app .logo {
+  float: left;
+  width: 70px;
+  height: 60px;
+}
+/* .el-header {
+  padding-top: 15px;
+} */
 </style>

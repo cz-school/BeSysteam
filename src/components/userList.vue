@@ -63,6 +63,7 @@ export default {
             this.$axios.delete('/getUserList/'+id).then(res=>{
                 if(res.data.code == 200){
                 this.getList()
+                        this.$emit('getUserList')
                 }
             })
           this.$message({
@@ -78,13 +79,11 @@ export default {
     },
     addRouters(){
         this.$axios.post("/getUserList",this.addRouter).then(res=>{
-            console.log(res);
-            
             if(res.data.code == 200){
                 this.$message.success("添加成功")
                 this.getList()
-                this.$emit('getUserList')
-                this.$parent.getUserList();
+                // this.$parent.getUserList();
+                 this.$emit('getUserList')
             }
         })
     }
